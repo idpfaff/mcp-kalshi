@@ -4,6 +4,8 @@ dist/
 # Dependencies
 node_modules/
 
+*.env
+
 # OS-specific
 .DS_Store
 Thumbs.db

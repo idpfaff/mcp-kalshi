@@ -1,7 +1,9 @@
 export const config = {
-	weatherApi: {
-		baseUrl: "https://api.openweathermap.org/data/2.5",
-		apiKey: process.env.OPENWEATHER_API_KEY || "",
-		defaultUnits: "metric", // metric (Celsius) or imperial (Fahrenheit)
+	kalshi: {
+		basePath: "https://api.elections.kalshi.com/trade-api/v2",
+		apiKey: process.env.KALSHI_API_KEY || "",
+		// Provide either privateKeyPath OR privateKeyPem
+		privateKeyPath: process.env.KALSHI_PRIVATE_KEY_PATH || "",
+		privateKeyPem: process.env.KALSHI_PRIVATE_KEY_PEM || "",
 	},
 };

@@ -20,11 +20,12 @@
     "lint": "biome check ."
   },
   "publishConfig": {
-		"access": "public"
-	},
+    "access": "public"
+  },
   "dependencies": {
     "dedent": "^1.6.0",
     "fastmcp": "^1.27.7",
+    "kalshi-typescript": "^3.4.0",
     "zod": "^3.25.7"
   },
   "devDependencies": {
@@ -34,6 +35,7 @@
     "husky": "^9.0.0",
     "lint-staged": "^15.0.0",
     "shx": "^0.3.4",
+    "tsx": "^4.21.0",
     "typescript": "^5.8.3"
   },
   "lint-staged": {
