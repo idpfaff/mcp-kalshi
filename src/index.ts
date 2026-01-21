@@ -1,21 +1,33 @@
 #!/usr/bin/env node
 import { FastMCP } from "fastmcp";
+import { marketTools } from "./tools/markets.js";
+import { portfolioTools } from "./tools/portfolio.js";
+import { orderTools } from "./tools/orders.js";
 
 async function main() {
-	console.log("Initializing Kalshi MCP Server...");
-
 	const server = new FastMCP({
 		name: "Kalshi MCP Server",
 		version: "0.0.1",
 	});
 
-	// Tools will be added here as we implement them
+	// Register all tools
+	for (const tool of marketTools) {
+		// biome-ignore lint: fastmcp types are overly strict
+		server.addTool(tool as any);
+	}
+	for (const tool of portfolioTools) {
+		// biome-ignore lint: fastmcp types are overly strict
+		server.addTool(tool as any);
+	}
+	for (const tool of orderTools) {
+		// biome-ignore lint: fastmcp types are overly strict
+		server.addTool(tool as any);
+	}
 
 	try {
 		await server.start({
 			transportType: "stdio",
 		});
-		console.log("Kalshi MCP Server started successfully over stdio.");
 	} catch (error) {
 		console.error("Failed to start Kalshi MCP Server:", error);
 		process.exit(1);
