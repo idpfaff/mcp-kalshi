@@ -1,212 +1,270 @@
-# MCP Server Starter Template
+# Kalshi MCP Server
 
-A minimal starter template for building Model Context Protocol (MCP) servers using TypeScript and FastMCP.
+A Model Context Protocol (MCP) server implementation for interacting with Kalshi's prediction markets. This server provides tools for retrieving market data and executing trades through the Kalshi API, enabling AI agents to interact with prediction markets seamlessly.
 
 ## Features
 
-* Basic project structure with `src/lib`, `src/services`, `src/tools`.
-* TypeScript setup (compiles to `dist/`).
-* Biome for linting and formatting.
-* `fastmcp` for MCP server implementation.
-* A weather service example demonstrating:
-  * Proper folder structure (lib, services, tools)
-  * API integration with error handling
-  * Parameter validation using Zod
-  * Separation of concerns
-* GitHub Actions workflows for CI and Release (manual trigger by default).
+### Market Data Tools
+- **GET_MARKETS**: List and discover prediction markets with filtering by status, series, or event
+- **GET_MARKET**: Get detailed information about a specific market
+- **GET_MARKET_ORDERBOOK**: View current order book bid/ask depth
+- **GET_TRADES**: Get recent public trades across markets
+- **GET_SERIES**: Get information about recurring event series
 
-## Getting Started
+### Portfolio Tools
+- **GET_BALANCE**: Check account balance and portfolio value
+- **GET_POSITIONS**: View current portfolio positions with P&L
+- **GET_FILLS**: Get trade fill history
+- **GET_SETTLEMENTS**: View settlement history and payouts
 
-1. **Create a new repository from this template:**
-   Click [here](https://github.com/new?template_name=mcp-server-starter&template_owner=IQAIcom) to generate a new repository from this template.
+### Trading Tools
+- **GET_ORDERS**: List your orders with status filtering
+- **GET_ORDER**: Get details of a specific order
+- **CREATE_ORDER**: Place limit or market orders
+- **CANCEL_ORDER**: Cancel a specific order
+- **BATCH_CANCEL_ORDERS**: Cancel multiple orders at once
+- **DECREASE_ORDER**: Reduce order quantity without full cancellation
 
-2. **Navigate to your new project:**
+## Quick Start
 
-    ```bash
-    cd /path/to/your-new-mcp-server
-    ```
+### Using with npx (Recommended)
 
-3. **Initialize Git Repository (if not already):**
+The easiest way to use this MCP server is with `npx`:
 
-    ```bash
-    git init
-    git branch -M main # Or your preferred default branch name
-    ```
-
-4. **Customize `package.json`:**
-    * Update `name`, `version`, `description`, `author`, `repository`, etc.
-    * Update the `bin` entry if you change the command name.
-
-5. **Install dependencies:**
-
-    ```bash
-    pnpm install
-    ```
-
-6. **Configure environment variables:**
-   For the weather service example, you'll need an OpenWeather API key:
-
-   ```bash
-   # Create a .env file (add to .gitignore)
-   echo "OPENWEATHER_API_KEY=your_api_key_here" > .env
-   ```
-
-   Get an API key from [OpenWeather](https://openweathermap.org/api).
-
-7. **Initial Commit:**
-    It's a good idea to make an initial commit at this stage before setting up Husky and Changesets.
-
-    ```bash
-    git add .
-    git commit -m "feat: initial project setup from template"
-    ```
-
-8. **Develop your server:**
-    * Add your custom tools in the `src/tools/` directory.
-    * Implement logic in `src/lib/` and `src/services/`.
-    * Register tools in `src/index.ts`.
-
-## Example Weather Tool
-
-This template includes a weather service example that demonstrates:
-
-1. **HTTP Utilities** (`src/lib/http.ts`):
-   * Type-safe HTTP requests with Zod validation
-   * Error handling
-
-2. **Configuration** (`src/lib/config.ts`):
-   * Environment variable management
-   * Service configuration
-
-3. **Weather Service** (`src/services/weatherService.ts`):
-   * API integration
-   * Data transformation
-   * Proper error propagation
-
-4. **Weather Tool** (`src/tools/weather.ts`):
-   * Parameter validation with Zod
-   * User-friendly output formatting
-   * Error handling and user guidance
-
-To use the weather tool:
-
-```bash
-# Set your OpenWeather API key
-export OPENWEATHER_API_KEY=your_api_key_here
-
-# Run the server
-pnpm run start
-
-# Connect with an MCP client and use the GET_WEATHER tool
-# with parameter: { "city": "London" }
+```json
+{
+  "mcpServers": {
+    "kalshi": {
+      "command": "npx",
+      "args": ["mcp-kalshi"],
+      "env": {
+        "KALSHI_API_KEY": "your_api_key_here",
+        "KALSHI_PRIVATE_KEY_PATH": "./path/to/your/private-key.pem"
+      }
+    }
+  }
+}
 ```
 
-## Pre-commit Linting (Husky & lint-staged)
+Or with the private key as a PEM string:
 
-This template includes `husky` and `lint-staged` in its `devDependencies` for running Biome on staged files before committing. To set it up:
+```json
+{
+  "mcpServers": {
+    "kalshi": {
+      "command": "npx",
+      "args": ["mcp-kalshi"],
+      "env": {
+        "KALSHI_API_KEY": "your_api_key_here",
+        "KALSHI_PRIVATE_KEY_PEM": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
+      }
+    }
+  }
+}
+```
 
-1. **Ensure your package.json has the prepare script for husky:**
+### Manual Installation (For Development)
 
-   ```json
-   {
-     "scripts": {
-       "prepare": "husky"
-     }
-   }
-   ```
+```bash
+git clone https://github.com/IQAIcom/mcp-kalshi
+cd mcp-kalshi
+pnpm install
+pnpm run build
+```
 
-2. **Install dependencies and initialize husky:**
+## Configuration
 
-   ```bash
-   pnpm install
-   pnpm dlx husky init
-   ```
+### Environment Variables
 
-   This creates a `.husky` directory with the necessary setup.
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `KALSHI_API_KEY` | Yes | Your Kalshi API key ID |
+| `KALSHI_PRIVATE_KEY_PATH` | Yes* | Path to your RSA private key PEM file |
+| `KALSHI_PRIVATE_KEY_PEM` | Yes* | RSA private key as PEM string (alternative to path) |
 
-3. **Create the pre-commit hook for lint-staged:**
+*Either `KALSHI_PRIVATE_KEY_PATH` or `KALSHI_PRIVATE_KEY_PEM` is required.
 
-   ```bash
-   # Create or edit the pre-commit file
-   echo '#!/usr/bin/env sh' > .husky/pre-commit
-   echo '. "$(dirname -- "$0")/_/husky.sh"
-   
-   pnpm lint-staged' >> .husky/pre-commit
-   
-   # Make it executable
-   chmod +x .husky/pre-commit
+### Getting API Credentials
 
-   ```
+1. Log in to your Kalshi account
+2. Go to Settings > API Keys
+3. Create a new API key pair
+4. Download and save your private key securely
+5. Note your API Key ID
 
-4. **Configure `lint-staged` in `package.json`:**
-   ```json
-   // In package.json
-   "lint-staged": {
-     "*.{js,ts,cjs,mjs,jsx,tsx,json,jsonc}": [
-       "biome check --write --organize-imports-enabled=false --no-errors-on-unmatched"
-     ]
-   }
-   ```
+### For Claude Desktop
 
-   *Adjust the Biome command as needed. The one above is a common example.*
+Add to your Claude Desktop configuration:
 
-5. **Test it:**
-   Stage some changes to a `.ts` file and try to commit. Biome should run on the staged file.
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 
-## Release Management (Changesets)
+```json
+{
+  "mcpServers": {
+    "kalshi": {
+      "command": "node",
+      "args": ["/absolute/path/to/mcp-kalshi/dist/index.js"],
+      "env": {
+        "KALSHI_API_KEY": "your_api_key_here",
+        "KALSHI_PRIVATE_KEY_PATH": "/absolute/path/to/private-key.pem"
+      }
+    }
+  }
+}
+```
 
-This template is ready for release management using [Changesets](https://github.com/changesets/changesets).
+## Security & Privacy
 
-1. **Install Changesets CLI (if not already in devDependencies):**
-    The template `package.json` should include `@changesets/cli`. If not:
+### Private Key Security
 
-    ```bash
-    pnpm add -D @changesets/cli
-    ```
+Your RSA private key is used to sign API requests. Here's what you need to know:
 
-2. **Initialize Changesets:**
-    This command will create a `.changeset` directory with some configuration files.
+**Your Key Stays Safe:**
+- The MCP server runs entirely on your local machine
+- Your private key never leaves your computer
+- No data is sent to any third-party servers except Kalshi's official API
+- The key is only used to sign requests and is never written to disk by the server
 
-    ```bash
-    pnpm changeset init
-    # or npx changeset init
-    ```
+**Important Security Practices:**
+- Never commit your private key to version control
+- Never share your configuration file containing the key path
+- Only use this on trusted, secure machines
+- Consider using a dedicated API key with limited permissions for testing
 
-    Commit the generated `.changeset` directory and its contents.
+## Usage Examples
 
-3. **Adding Changesets During Development:**
-    When you make a change that should result in a version bump (fix, feature, breaking change):
+### Sample Questions for AI Agents
 
-    ```bash
-    pnpm changeset add
-    # or npx changeset add
-    ```
+**Market Discovery:**
+- "What prediction markets are currently open on Kalshi?"
+- "Show me markets related to cryptocurrency"
+- "What's the current price for the S&P 500 market?"
+- "Get the order book for INXD-25JAN20"
 
-    Follow the prompts. This will create a markdown file in the `.changeset` directory describing the change.
-    Commit this changeset file along with your code changes.
+**Portfolio Management:**
+- "What's my current account balance?"
+- "Show me my open positions"
+- "What trades have I made today?"
+- "List my recent settlements"
 
-4. **Publishing a Release:**
-    The GitHub Actions workflow `release.yml` (in `mcp-server-starter/.github/workflows/`) is set up for this. When you are ready to release:
-    * Ensure all feature PRs with their changeset files are merged to `main`.
-    * **Important:** Before publishing, ensure your `package.json` is complete. Add or update fields like `keywords`, `author`, `repository` (e.g., `"repository": {"type": "git", "url": "https://github.com/YOUR_USERNAME/YOUR_REPO_NAME.git"}`), `bugs` (e.g., `"bugs": {"url": "https://github.com/YOUR_USERNAME/YOUR_REPO_NAME/issues"}`), and `homepage` (e.g., `"homepage": "https://github.com/YOUR_USERNAME/YOUR_REPO_NAME#readme"`) for better discoverability and information on npm.
-    * The `release.yml` workflow (manually triggered by default in the template) will:
-        1. Run `changeset version` to consume changeset files, update `package.json` versions, and update `CHANGELOG.md`. It will push these to a `changeset-release/main` branch and open a "Version Packages" PR.
-        2. **Merge the "Version Packages" PR.**
-        3. Upon merging, the workflow runs again on `main`. This time, it will run `pnpm run publish-packages` (which should include `changeset publish`) to publish to npm and create GitHub Releases/tags.
-    * **To enable automatic release flow:** Change `on: workflow_dispatch` in `release.yml` to `on: push: branches: [main]` (or your release branch).
+**Trading:**
+- "Place a limit buy order for 10 Yes contracts at 45 cents on [market]"
+- "Cancel my order with ID [order_id]"
+- "Show me all my resting orders"
+- "Decrease my order by 5 contracts"
 
-## Available Scripts
+### Detailed Examples
 
-* `pnpm run build`: Compiles TypeScript to JavaScript in `dist/` and makes the output executable.
-* `pnpm run dev`: Runs the server in development mode using `tsx` (hot-reloading for TypeScript).
-* `pnpm run start`: Runs the built server (from `dist/`) using Node.
-* `pnpm run lint`: Lints the codebase using Biome.
-* `pnpm run format`: Formats the codebase using Biome.
+#### Get Active Markets
+```
+Show me 5 open markets in the KXSOL15M series
+```
 
-## Using the Server
+#### Check Balance
+```
+What's my available balance and portfolio value?
+```
 
-After building (`pnpm run build`), you can run the server:
+#### Place a Limit Order
+```
+Buy 5 Yes contracts at 30 cents on KXSOL15M-26JAN210500-00
+```
 
-* Directly if linked or globally installed: `mcp-hello-server` (or your customized bin name).
-* Via node: `node dist/index.js`
-* Via `pnpm dlx` (once published): `pnpm dlx your-published-package-name`
+#### Cancel an Order
+```
+Cancel order e7b4f2d3-...
+```
+
+## API Documentation
+
+This server uses the Kalshi Trade API v2:
+- Base URL: `https://api.elections.kalshi.com/trade-api/v2`
+- [Official API Documentation](https://docs.kalshi.com)
+- [TypeScript SDK](https://docs.kalshi.com/sdks/typescript/quickstart)
+
+## Development
+
+### Build
+```bash
+pnpm run build
+```
+
+### Development Mode
+```bash
+pnpm run dev
+```
+
+### Run Tests
+```bash
+pnpm run test
+```
+
+### Linting and Formatting
+```bash
+pnpm run lint
+pnpm run format
+```
+
+## Project Structure
+
+```
+mcp-kalshi/
+├── src/
+│   ├── lib/
+│   │   ├── config.ts          # Configuration management
+│   │   └── http.ts            # HTTP utilities
+│   ├── services/
+│   │   ├── kalshi-client.ts   # SDK client wrapper
+│   │   ├── markets-service.ts # Market data operations
+│   │   ├── portfolio-service.ts # Portfolio operations
+│   │   └── orders-service.ts  # Order management
+│   ├── tools/
+│   │   ├── markets.ts         # Market tools (5 tools)
+│   │   ├── portfolio.ts       # Portfolio tools (4 tools)
+│   │   └── orders.ts          # Order tools (6 tools)
+│   ├── index.ts               # MCP server entry point
+│   └── test-services.ts       # Test script
+├── dist/                      # Compiled output
+├── .env.example               # Environment template
+├── package.json
+└── README.md
+```
+
+## Technologies
+
+- **TypeScript**: Type-safe development
+- **fastmcp**: MCP server implementation
+- **kalshi-typescript**: Official Kalshi SDK
+- **Zod**: Parameter validation
+- **Biome**: Linting and formatting
+
+## Trading on Kalshi
+
+### How Prediction Markets Work
+
+Kalshi markets are binary contracts that resolve to either Yes (100 cents) or No (0 cents):
+- **Yes contracts**: Pay $1.00 if the event happens, $0 if not
+- **No contracts**: Pay $1.00 if the event doesn't happen, $0 if it does
+- Prices range from 1-99 cents, representing implied probability
+
+### Order Types
+
+- **Limit orders**: Specify exact price, may rest on the book
+- **Market orders**: Execute immediately at best available price
+- **Post-only**: Only place if order will rest (no immediate fill)
+- **Reduce-only**: Only reduce existing position
+
+### Time in Force Options
+
+- **good_till_canceled**: Remains until filled or canceled
+- **fill_or_kill**: Fill entirely immediately or cancel
+- **immediate_or_cancel**: Fill what's available, cancel rest
+
+## Disclaimer
+
+This is an unofficial tool and is not affiliated with Kalshi. Use at your own risk. Always verify transactions and understand the risks involved in prediction market trading. Past performance does not guarantee future results.
+
+## License
+
+MIT
