@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import { FastMCP } from "fastmcp";
 import { marketTools } from "./tools/markets.js";
-import { portfolioTools } from "./tools/portfolio.js";
 import { orderTools } from "./tools/orders.js";
+import { portfolioTools } from "./tools/portfolio.js";
 
 async function main() {
 	const server = new FastMCP({
@@ -35,6 +35,9 @@ async function main() {
 }
 
 main().catch((error) => {
-	console.error("An unexpected error occurred in the Kalshi MCP Server:", error);
+	console.error(
+		"An unexpected error occurred in the Kalshi MCP Server:",
+		error,
+	);
 	process.exit(1);
 });

@@ -7,9 +7,7 @@
 	"bin": {
 		"mcp-kalshi": "dist/index.js"
 	},
-	"files": [
-		"dist"
-	],
+	"files": ["dist"],
 	"scripts": {
 		"build": "tsc && shx chmod +x dist/index.js",
 		"prepare": "husky",
@@ -36,7 +34,8 @@
 		"lint-staged": "^15.0.0",
 		"shx": "^0.3.4",
 		"tsx": "^4.21.0",
-		"typescript": "^5.8.3"
+		"typescript": "^5.8.3",
+		"zod-to-json-schema": "^3.24.5"
 	},
 	"lint-staged": {
 		"*.{js,ts,cjs,mjs,d.cts,d.mts,jsx,tsx,json,jsonc}": [

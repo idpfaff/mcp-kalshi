@@ -1,5 +1,5 @@
-import { z } from "zod";
 import dedent from "dedent";
+import { z } from "zod";
 import { PortfolioService } from "../services/portfolio-service.js";
 
 const portfolioService = new PortfolioService();
@@ -45,7 +45,9 @@ const getPositionsParams = z.object({
 	countFilter: z
 		.string()
 		.optional()
-		.describe("Filter: 'position' for non-zero positions, 'total_traded' for traded"),
+		.describe(
+			"Filter: 'position' for non-zero positions, 'total_traded' for traded",
+		),
 });
 
 export const getPositionsTool = {

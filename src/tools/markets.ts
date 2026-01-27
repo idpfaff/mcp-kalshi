@@ -62,7 +62,10 @@ export const getMarketsTool = {
 
 // GET_MARKET tool
 const getMarketParams = z.object({
-	ticker: z.string().min(1).describe("The market ticker (e.g., 'INXD-25JAN20')"),
+	ticker: z
+		.string()
+		.min(1)
+		.describe("The market ticker (e.g., 'INXD-25JAN20')"),
 });
 
 export const getMarketTool = {

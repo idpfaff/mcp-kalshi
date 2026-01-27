@@ -1,11 +1,11 @@
 import type {
-	CreateOrderRequest,
-	CreateOrderRequestSideEnum,
-	CreateOrderRequestActionEnum,
-	CreateOrderRequestTypeEnum,
-	CreateOrderRequestTimeInForceEnum,
-	AmendOrderRequestSideEnum,
 	AmendOrderRequestActionEnum,
+	AmendOrderRequestSideEnum,
+	CreateOrderRequest,
+	CreateOrderRequestActionEnum,
+	CreateOrderRequestSideEnum,
+	CreateOrderRequestTimeInForceEnum,
+	CreateOrderRequestTypeEnum,
 } from "kalshi-typescript";
 import { KalshiClient } from "./kalshi-client.js";
 

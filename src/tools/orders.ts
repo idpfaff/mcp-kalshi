@@ -1,5 +1,5 @@
-import { z } from "zod";
 import dedent from "dedent";
+import { z } from "zod";
 import { OrdersService } from "../services/orders-service.js";
 
 const ordersService = new OrdersService();
@@ -112,13 +112,17 @@ const createOrderParams = z.object({
 		.min(1)
 		.max(99)
 		.optional()
-		.describe("Yes price in cents (1-99) - required for limit orders on yes side"),
+		.describe(
+			"Yes price in cents (1-99) - required for limit orders on yes side",
+		),
 	noPrice: z
 		.number()
 		.min(1)
 		.max(99)
 		.optional()
-		.describe("No price in cents (1-99) - required for limit orders on no side"),
+		.describe(
+			"No price in cents (1-99) - required for limit orders on no side",
+		),
 	timeInForce: z
 		.enum(["fill_or_kill", "good_till_canceled", "immediate_or_cancel"])
 		.optional()

@@ -1,45 +1,52 @@
-# Kalshi MCP Server
+# 📈 Kalshi MCP Server
 
 [![npm version](https://img.shields.io/npm/v/@iqai/mcp-kalshi.svg)](https://www.npmjs.com/package/@iqai/mcp-kalshi)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-A Model Context Protocol (MCP) server for interacting with Kalshi prediction markets. This server provides tools for retrieving market data and executing trades through the Kalshi API, enabling AI agents to interact with prediction markets seamlessly.
+## 📖 Overview
 
-## Features
+The Kalshi MCP Server enables AI agents to interact with [Kalshi](https://kalshi.com), a regulated prediction market exchange in the US. This server provides comprehensive access to market data, real-time pricing, order books, portfolio management, and trading capabilities.
 
-### Market Data Tools
-- **GET_MARKETS**: List and discover prediction markets with filtering by status, series, or event
-- **GET_MARKET**: Get detailed information about a specific market
-- **GET_MARKET_ORDERBOOK**: View current order book bid/ask depth
-- **GET_TRADES**: Get recent public trades across markets
-- **GET_SERIES**: Get information about recurring event series
+By implementing the Model Context Protocol (MCP), this server allows Large Language Models (LLMs) to discover prediction markets, analyze odds (probabilities), execute trades, and track portfolio performance directly through their context window, bridging the gap between AI and regulated prediction markets.
 
-### Portfolio Tools
-- **GET_BALANCE**: Check account balance and portfolio value
-- **GET_POSITIONS**: View current portfolio positions with P&L
-- **GET_FILLS**: Get trade fill history
-- **GET_SETTLEMENTS**: View settlement history and payouts
+## ✨ Features
 
-### Trading Tools
-- **GET_ORDERS**: List your orders with status filtering
-- **GET_ORDER**: Get details of a specific order
-- **CREATE_ORDER**: Place limit or market orders
-- **CANCEL_ORDER**: Cancel a specific order
-- **BATCH_CANCEL_ORDERS**: Cancel multiple orders at once
-- **DECREASE_ORDER**: Reduce order quantity without full cancellation
+*   **Market Discovery**: Search and filter prediction markets by status, series, or event keywords.
+*   **Real-time Pricing**: Access live price data, implied probabilities, and depth-of-market (order books) for any market.
+*   **Portfolio Tracking**: Monitor account balance, positions, trade history, fills, and settlements.
+*   **Trading Operations**: Place limit or market orders, cancel orders, and manage positions.
 
-## Quick Start
+## 📦 Installation
 
-### Using with npx (Recommended)
+### 🚀 Using npx (Recommended)
 
-The easiest way to use this MCP server is with `npx`:
+To use this server without installing it globally:
+
+```bash
+npx @iqai/mcp-kalshi
+```
+
+### 🔧 Build from Source
+
+```bash
+git clone https://github.com/IQAIcom/mcp-kalshi.git
+cd mcp-kalshi
+pnpm install
+pnpm run build
+```
+
+## ⚡ Running with an MCP Client
+
+Add the following configuration to your MCP client settings (e.g., `claude_desktop_config.json`).
+
+### 📋 Minimal Configuration
 
 ```json
 {
   "mcpServers": {
     "kalshi": {
       "command": "npx",
-      "args": ["@iqai/mcp-kalshi"],
+      "args": ["-y", "@iqai/mcp-kalshi"],
       "env": {
         "KALSHI_API_KEY": "your_api_key_here",
         "KALSHI_PRIVATE_KEY_PATH": "./path/to/your/private-key.pem"
@@ -49,58 +56,7 @@ The easiest way to use this MCP server is with `npx`:
 }
 ```
 
-Or with the private key as a PEM string:
-
-```json
-{
-  "mcpServers": {
-    "kalshi": {
-      "command": "npx",
-      "args": ["@iqai/mcp-kalshi"],
-      "env": {
-        "KALSHI_API_KEY": "your_api_key_here",
-        "KALSHI_PRIVATE_KEY_PEM": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
-      }
-    }
-  }
-}
-```
-
-### Manual Installation (For Development)
-
-```bash
-git clone https://github.com/IQAIcom/mcp-kalshi
-cd mcp-kalshi
-pnpm install
-pnpm run build
-```
-
-## Configuration
-
-### Environment Variables
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `KALSHI_API_KEY` | Yes | Your Kalshi API key ID |
-| `KALSHI_PRIVATE_KEY_PATH` | Yes* | Path to your RSA private key PEM file |
-| `KALSHI_PRIVATE_KEY_PEM` | Yes* | RSA private key as PEM string (alternative to path) |
-
-*Either `KALSHI_PRIVATE_KEY_PATH` or `KALSHI_PRIVATE_KEY_PEM` is required.
-
-### Getting API Credentials
-
-1. Log in to your Kalshi account
-2. Go to Settings > API Keys
-3. Create a new API key pair
-4. Download and save your private key securely
-5. Note your API Key ID
-
-### For Claude Desktop
-
-Add to your Claude Desktop configuration:
-
-**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+### ⚙️ Advanced Configuration (Local Build)
 
 ```json
 {
@@ -117,9 +73,78 @@ Add to your Claude Desktop configuration:
 }
 ```
 
-## Security & Privacy
+## 🔐 Configuration (Environment Variables)
 
-### Private Key Security
+| Variable | Required | Description | Default |
+| :--- | :--- | :--- | :--- |
+| `KALSHI_API_KEY` | Yes | Your Kalshi API key ID | - |
+| `KALSHI_PRIVATE_KEY_PATH` | Yes* | Path to your RSA private key PEM file | - |
+| `KALSHI_PRIVATE_KEY_PEM` | Yes* | RSA private key as PEM string (alternative to path) | - |
+
+*Either `KALSHI_PRIVATE_KEY_PATH` or `KALSHI_PRIVATE_KEY_PEM` is required.
+
+### 🔑 Getting API Credentials
+
+1. Log in to your Kalshi account
+2. Go to Settings > API Keys
+3. Create a new API key pair
+4. Download and save your private key securely
+5. Note your API Key ID
+
+## 💡 Usage Examples
+
+### 🔍 Market Discovery
+*   "What prediction markets are currently open on Kalshi?"
+*   "Show me markets related to cryptocurrency"
+*   "Find markets about the S&P 500"
+
+### 📊 Analytics & Pricing
+*   "Get the order book for INXD-25JAN20"
+*   "What is the current implied probability for this market?"
+*   "Show me recent trades on this market"
+
+### 💼 Portfolio Management
+*   "What's my current account balance?"
+*   "Show me my open positions"
+*   "What trades have I made today?"
+*   "List my recent settlements"
+
+### 📝 Trading
+*   "Place a limit buy order for 10 Yes contracts at 45 cents on [market]"
+*   "Cancel my order with ID [order_id]"
+*   "Show me all my resting orders"
+
+## 🛠️ MCP Tools
+
+<!-- AUTO-GENERATED TOOLS START -->
+
+<!-- AUTO-GENERATED TOOLS END -->
+
+## 👨‍💻 Development
+
+### 🏗️ Build Project
+```bash
+pnpm run build
+```
+
+### 👁️ Development Mode (Watch)
+```bash
+pnpm run watch
+```
+
+### ✅ Linting & Formatting
+```bash
+pnpm run lint
+pnpm run format
+```
+
+### 📁 Project Structure
+*   `src/tools/`: Individual tool definitions
+*   `src/services/`: API client and business logic
+*   `src/lib/`: Shared utilities (config, http)
+*   `src/index.ts`: Server entry point
+
+## 🔒 Security & Privacy
 
 Your RSA private key is used to sign API requests. Here's what you need to know:
 
@@ -127,151 +152,23 @@ Your RSA private key is used to sign API requests. Here's what you need to know:
 - The MCP server runs entirely on your local machine
 - Your private key never leaves your computer
 - No data is sent to any third-party servers except Kalshi's official API
-- The key is only used to sign requests and is never written to disk by the server
 
 **Important Security Practices:**
 - Never commit your private key to version control
 - Never share your configuration file containing the key path
 - Only use this on trusted, secure machines
-- Consider using a dedicated API key with limited permissions for testing
 
-## Usage Examples
+## 📚 Resources
 
-### Sample Questions for AI Agents
+*   [Kalshi API Documentation](https://docs.kalshi.com)
+*   [Kalshi TypeScript SDK](https://docs.kalshi.com/sdks/typescript/quickstart)
+*   [Model Context Protocol (MCP)](https://modelcontextprotocol.io)
+*   [Kalshi Platform](https://kalshi.com)
 
-**Market Discovery:**
-- "What prediction markets are currently open on Kalshi?"
-- "Show me markets related to cryptocurrency"
-- "What's the current price for the S&P 500 market?"
-- "Get the order book for INXD-25JAN20"
+## ⚠️ Disclaimer
 
-**Portfolio Management:**
-- "What's my current account balance?"
-- "Show me my open positions"
-- "What trades have I made today?"
-- "List my recent settlements"
+This project is an unofficial tool and is not directly affiliated with Kalshi. It interacts with financial and prediction market data. Users should exercise caution and verify all data independently. Trading in prediction markets involves risk.
 
-**Trading:**
-- "Place a limit buy order for 10 Yes contracts at 45 cents on [market]"
-- "Cancel my order with ID [order_id]"
-- "Show me all my resting orders"
-- "Decrease my order by 5 contracts"
+## 📄 License
 
-### Detailed Examples
-
-#### Get Active Markets
-```
-Show me 5 open markets in the KXSOL15M series
-```
-
-#### Check Balance
-```
-What's my available balance and portfolio value?
-```
-
-#### Place a Limit Order
-```
-Buy 5 Yes contracts at 30 cents on KXSOL15M-26JAN210500-00
-```
-
-#### Cancel an Order
-```
-Cancel order e7b4f2d3-...
-```
-
-## API Documentation
-
-This server uses the Kalshi Trade API v2:
-- **Base URL**: `https://api.elections.kalshi.com/trade-api/v2`
-- [Official API Documentation](https://docs.kalshi.com)
-- [TypeScript SDK](https://docs.kalshi.com/sdks/typescript/quickstart)
-
-## Development
-
-### Build
-```bash
-pnpm run build
-```
-
-### Development Mode
-```bash
-pnpm run watch
-```
-
-### Run Server
-```bash
-pnpm run start
-```
-
-### Linting and Formatting
-```bash
-pnpm run lint
-pnpm run format
-```
-
-## Project Structure
-
-```
-mcp-kalshi/
-├── src/
-│   ├── lib/
-│   │   ├── config.ts          # Configuration management
-│   │   └── http.ts            # HTTP utilities
-│   ├── services/
-│   │   ├── kalshi-client.ts   # SDK client wrapper
-│   │   ├── markets-service.ts # Market data operations
-│   │   ├── portfolio-service.ts # Portfolio operations
-│   │   └── orders-service.ts  # Order management
-│   ├── tools/
-│   │   ├── markets.ts         # Market tools (5 tools)
-│   │   ├── portfolio.ts       # Portfolio tools (4 tools)
-│   │   └── orders.ts          # Order tools (6 tools)
-│   └── index.ts               # MCP server entry point
-├── dist/                      # Compiled output
-├── package.json
-└── README.md
-```
-
-## Technologies
-
-- **TypeScript**: Type-safe development
-- **fastmcp**: MCP server implementation
-- **kalshi-typescript**: Official Kalshi SDK
-- **Zod**: Parameter validation
-- **Biome**: Linting and formatting
-
-## Trading on Kalshi
-
-### How Prediction Markets Work
-
-Kalshi markets are binary contracts that resolve to either Yes (100 cents) or No (0 cents):
-- **Yes contracts**: Pay $1.00 if the event happens, $0 if not
-- **No contracts**: Pay $1.00 if the event doesn't happen, $0 if it does
-- Prices range from 1-99 cents, representing implied probability
-
-### Order Types
-
-- **Limit orders**: Specify exact price, may rest on the book
-- **Market orders**: Execute immediately at best available price
-- **Post-only**: Only place if order will rest (no immediate fill)
-- **Reduce-only**: Only reduce existing position
-
-### Time in Force Options
-
-- **good_till_canceled**: Remains until filled or canceled
-- **fill_or_kill**: Fill entirely immediately or cancel
-- **immediate_or_cancel**: Fill what's available, cancel rest
-
-## Disclaimer
-
-This is an unofficial tool and is not affiliated with Kalshi. Use at your own risk. Always verify transactions and understand the risks involved in prediction market trading. Past performance does not guarantee future results.
-
-## Related Projects
-
-- [Polymarket MCP](https://github.com/IQAIcom/mcp-polymarket) - MCP server for Polymarket
-- [Limitless MCP](https://github.com/IQAIcom/mcp-limitless) - MCP server for Limitless
-- [Opinion MCP](https://github.com/IQAIcom/mcp-opinion) - MCP server for Opinion
-
-## License
-
-MIT
+[MIT](LICENSE)
