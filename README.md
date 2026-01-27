@@ -118,6 +118,26 @@ Add the following configuration to your MCP client settings (e.g., `claude_deskt
 
 <!-- AUTO-GENERATED TOOLS START -->
 
+### `BATCH_CANCEL_ORDERS`
+Cancel multiple orders at once (up to 20 orders per batch).
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `ids` | array | ✅ | Array of order IDs to cancel (max 20) |
+
+### `GET_BALANCE`
+Get the current account balance and portfolio value. Values are returned in dollars.
+
+_No parameters_
+
+### `GET_MARKET_ORDERBOOK`
+Get the current orderbook for a market showing bid prices and quantities for both Yes and No sides.
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `ticker` | string | ✅ | The market ticker |
+| `depth` | number |  | Depth of orderbook to retrieve (1-100, default 10) |
+
 <!-- AUTO-GENERATED TOOLS END -->
 
 ## 👨‍💻 Development
