@@ -1,5 +1,5 @@
 {
-	"name": "mcp-kalshi",
+	"name": "@iqai/mcp-kalshi",
 	"version": "0.0.1",
 	"description": "MCP server for interacting with Kalshi prediction markets - trade, manage portfolio, and discover markets.",
 	"main": "dist/index.js",
