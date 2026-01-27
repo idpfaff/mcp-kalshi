@@ -1,6 +1,9 @@
 # Kalshi MCP Server
 
-A Model Context Protocol (MCP) server implementation for interacting with Kalshi's prediction markets. This server provides tools for retrieving market data and executing trades through the Kalshi API, enabling AI agents to interact with prediction markets seamlessly.
+[![npm version](https://img.shields.io/npm/v/@iqai/mcp-kalshi.svg)](https://www.npmjs.com/package/@iqai/mcp-kalshi)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
+A Model Context Protocol (MCP) server for interacting with Kalshi prediction markets. This server provides tools for retrieving market data and executing trades through the Kalshi API, enabling AI agents to interact with prediction markets seamlessly.
 
 ## Features
 
@@ -36,7 +39,7 @@ The easiest way to use this MCP server is with `npx`:
   "mcpServers": {
     "kalshi": {
       "command": "npx",
-      "args": ["mcp-kalshi"],
+      "args": ["@iqai/mcp-kalshi"],
       "env": {
         "KALSHI_API_KEY": "your_api_key_here",
         "KALSHI_PRIVATE_KEY_PATH": "./path/to/your/private-key.pem"
@@ -53,7 +56,7 @@ Or with the private key as a PEM string:
   "mcpServers": {
     "kalshi": {
       "command": "npx",
-      "args": ["mcp-kalshi"],
+      "args": ["@iqai/mcp-kalshi"],
       "env": {
         "KALSHI_API_KEY": "your_api_key_here",
         "KALSHI_PRIVATE_KEY_PEM": "-----BEGIN RSA PRIVATE KEY-----\n...\n-----END RSA PRIVATE KEY-----"
@@ -179,7 +182,7 @@ Cancel order e7b4f2d3-...
 ## API Documentation
 
 This server uses the Kalshi Trade API v2:
-- Base URL: `https://api.elections.kalshi.com/trade-api/v2`
+- **Base URL**: `https://api.elections.kalshi.com/trade-api/v2`
 - [Official API Documentation](https://docs.kalshi.com)
 - [TypeScript SDK](https://docs.kalshi.com/sdks/typescript/quickstart)
 
@@ -192,12 +195,12 @@ pnpm run build
 
 ### Development Mode
 ```bash
-pnpm run dev
+pnpm run watch
 ```
 
-### Run Tests
+### Run Server
 ```bash
-pnpm run test
+pnpm run start
 ```
 
 ### Linting and Formatting
@@ -223,10 +226,8 @@ mcp-kalshi/
 │   │   ├── markets.ts         # Market tools (5 tools)
 │   │   ├── portfolio.ts       # Portfolio tools (4 tools)
 │   │   └── orders.ts          # Order tools (6 tools)
-│   ├── index.ts               # MCP server entry point
-│   └── test-services.ts       # Test script
+│   └── index.ts               # MCP server entry point
 ├── dist/                      # Compiled output
-├── .env.example               # Environment template
 ├── package.json
 └── README.md
 ```
@@ -264,6 +265,12 @@ Kalshi markets are binary contracts that resolve to either Yes (100 cents) or No
 ## Disclaimer
 
 This is an unofficial tool and is not affiliated with Kalshi. Use at your own risk. Always verify transactions and understand the risks involved in prediction market trading. Past performance does not guarantee future results.
+
+## Related Projects
+
+- [Polymarket MCP](https://github.com/IQAIcom/mcp-polymarket) - MCP server for Polymarket
+- [Limitless MCP](https://github.com/IQAIcom/mcp-limitless) - MCP server for Limitless
+- [Opinion MCP](https://github.com/IQAIcom/mcp-opinion) - MCP server for Opinion
 
 ## License
 
