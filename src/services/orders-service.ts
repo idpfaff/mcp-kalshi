@@ -65,10 +65,8 @@ export interface GetOrderQueuePositionsParams {
 }
 
 export class OrdersService {
-	private readonly client: KalshiClient;
-
-	constructor() {
-		this.client = KalshiClient.getInstance();
+	private get client(): KalshiClient {
+		return KalshiClient.getInstance();
 	}
 
 	async getOrders(params: GetOrdersParams = {}) {

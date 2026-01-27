@@ -27,10 +27,8 @@ export interface GetSettlementsParams {
 }
 
 export class PortfolioService {
-	private readonly client: KalshiClient;
-
-	constructor() {
-		this.client = KalshiClient.getInstance();
+	private get client(): KalshiClient {
+		return KalshiClient.getInstance();
 	}
 
 	async getBalance() {

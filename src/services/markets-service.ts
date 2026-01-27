@@ -43,10 +43,8 @@ export interface GetTradesParams {
 export { GetMarketCandlesticksPeriodIntervalEnum };
 
 export class MarketsService {
-	private readonly client: KalshiClient;
-
-	constructor() {
-		this.client = KalshiClient.getInstance();
+	private get client(): KalshiClient {
+		return KalshiClient.getInstance();
 	}
 
 	async getMarkets(params: GetMarketsParams = {}) {
