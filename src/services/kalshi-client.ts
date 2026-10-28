@@ -10,6 +10,7 @@ import {
 import { config } from "../lib/config.js";
 
 let clientInstance: KalshiClient | null = null;
+let publicClientInstance: KalshiClient | null = null;
 
 export class KalshiClient {
 	private readonly configuration: Configuration;
@@ -20,16 +21,16 @@ export class KalshiClient {
 	public readonly exchange: ExchangeApi;
 	public readonly orders: OrdersApi;
 
-	constructor() {
+	constructor(publicOnly = false) {
 		const { apiKey, privateKeyPath, privateKeyPem, basePath } = config.kalshi;
 
-		if (!apiKey) {
+		if (!publicOnly && !apiKey) {
 			throw new Error(
 				"KALSHI_API_KEY is not configured. Set it in your environment variables.",
 			);
 		}
 
-		if (!privateKeyPath && !privateKeyPem) {
+		if (!publicOnly && !privateKeyPath && !privateKeyPem) {
 			throw new Error(
 				"Kalshi private key is not configured. Set KALSHI_PRIVATE_KEY_PATH or KALSHI_PRIVATE_KEY_PEM in your environment variables.",
 			);
@@ -37,13 +38,15 @@ export class KalshiClient {
 
 		// Configure SDK with either file path or PEM string
 		const configOptions: ConstructorParameters<typeof Configuration>[0] = {
-			apiKey,
 			basePath,
+			// Use Node's fetch transport consistently, including its proxy handling.
+			baseOptions: { timeout: 20000, adapter: "fetch" },
 		};
 
-		if (privateKeyPem) {
+		if (!publicOnly) configOptions.apiKey = apiKey;
+		if (!publicOnly && privateKeyPem) {
 			configOptions.privateKeyPem = privateKeyPem;
-		} else if (privateKeyPath) {
+		} else if (!publicOnly && privateKeyPath) {
 			configOptions.privateKeyPath = privateKeyPath;
 		}
 
@@ -63,6 +66,11 @@ export class KalshiClient {
 			clientInstance = new KalshiClient();
 		}
 		return clientInstance;
+	}
+
+	static getPublicInstance(): KalshiClient {
+		if (!publicClientInstance) publicClientInstance = new KalshiClient(true);
+		return publicClientInstance;
 	}
 
 	static isConfigured(): boolean {

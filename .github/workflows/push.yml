@@ -1,7 +1,9 @@
-name: Push checks (Template - Manual Trigger)
+name: Checks
 
-# To enable, change to e.g.: on: [push]
-on: workflow_dispatch
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
 
 jobs:
   Checkout:
@@ -15,11 +17,11 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.0.0
+          node-version: 22
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9
+          version: 9.15.9
       - name: Get pnpm store directory
         shell: bash
         run: |
@@ -32,8 +34,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-      - name: Build project
-        run: pnpm run build
+        run: pnpm install --frozen-lockfile --ignore-scripts
+      - name: Build and test
+        run: pnpm test
       - name: Biome Lint Check
         run: pnpm run lint

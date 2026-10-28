@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { FastMCP } from "fastmcp";
+import { config } from "./lib/config.js";
 import { marketTools } from "./tools/markets.js";
 import { orderTools } from "./tools/orders.js";
 import { portfolioTools } from "./tools/portfolio.js";
@@ -7,7 +8,7 @@ import { portfolioTools } from "./tools/portfolio.js";
 async function main() {
 	const server = new FastMCP({
 		name: "Kalshi MCP Server",
-		version: "0.0.1",
+		version: "0.1.2",
 	});
 
 	// Register all tools
@@ -20,6 +21,7 @@ async function main() {
 		server.addTool(tool as any);
 	}
 	for (const tool of orderTools) {
+		if (config.kalshi.readOnly && !tool.name.startsWith("GET_")) continue;
 		// biome-ignore lint: fastmcp types are overly strict
 		server.addTool(tool as any);
 	}

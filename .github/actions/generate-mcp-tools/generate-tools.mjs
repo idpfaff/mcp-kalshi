@@ -38,21 +38,11 @@ async function loadTools() {
 				(exp.parameters || exp.schema),
 		);
 
-		if (matches.length === 0) {
-			return null;
-		}
-
-		if (matches.length > 1) {
-			console.warn(
-				`Warning: ${file} exports multiple MCP-like tools. Using the first one.`,
-			);
-		}
-
-		return matches[0];
+		return matches;
 	});
 
 	const loadedTools = await Promise.all(toolPromises);
-	const tools = loadedTools.filter(Boolean);
+	const tools = loadedTools.flat();
 
 	return tools.sort((a, b) => a.name.localeCompare(b.name));
 }

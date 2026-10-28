@@ -1,9 +1,6 @@
 name: Sync MCP Tool Docs
 
-on:
-  push:
-    branches:
-      - main
+on: workflow_dispatch
 
 permissions:
   contents: write
@@ -19,16 +16,15 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.9
 
       - name: Install dependencies
-        run: |
-          if [ -f pnpm-lock.yaml ]; then
-            corepack enable
-            pnpm install --frozen-lockfile
-          else
-            npm install
-          fi
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Generate MCP tool documentation
         run: npx tsx .github/actions/generate-mcp-tools/generate-tools.mjs
