@@ -44,7 +44,7 @@ export { GetMarketCandlesticksPeriodIntervalEnum };
 
 export class MarketsService {
 	private get client(): KalshiClient {
-		return KalshiClient.getInstance();
+		return KalshiClient.getPublicInstance();
 	}
 
 	async getMarkets(params: GetMarketsParams = {}) {

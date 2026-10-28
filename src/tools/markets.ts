@@ -1,5 +1,12 @@
 import dedent from "dedent";
 import { z } from "zod";
+import {
+	field,
+	money,
+	orderbookSide,
+	pagination,
+	quantity,
+} from "../lib/format.js";
 import { MarketsService } from "../services/markets-service.js";
 
 const marketsService = new MarketsService();
@@ -45,8 +52,7 @@ export const getMarketsTool = {
 			}
 			const summary = markets
 				.map((m) => {
-					const yesPrice = m.yes_ask_dollars ? `${m.yes_ask_dollars}¢` : "N/A";
-					return `• ${m.ticker}: ${m.title} (Yes: ${yesPrice}, Volume: ${m.volume || 0})`;
+					return `• ${m.ticker}: ${m.title} (Yes Ask: ${money(m, "yes_ask")}, Volume: ${quantity(m, "volume")})`;
 				})
 				.join("\n");
 			return dedent`
@@ -86,16 +92,18 @@ export const getMarketTool = {
 				Status: ${m.status}
 
 				Pricing:
-				• Yes Ask: ${m.yes_ask}¢ | Yes Bid: ${m.yes_bid}¢
-				• No Ask: ${m.no_ask}¢ | No Bid: ${m.no_bid}¢
+				• Yes Ask: ${money(m, "yes_ask")} | Yes Bid: ${money(m, "yes_bid")}
+				• No Ask: ${money(m, "no_ask")} | No Bid: ${money(m, "no_bid")}
 
 				Activity:
-				• Volume: ${m.volume} contracts
-				• Open Interest: ${m.open_interest} contracts
-				• Last Price: ${m.last_price}¢
+				• Volume: ${quantity(m, "volume")} contracts
+				• Open Interest: ${quantity(m, "open_interest")} contracts
+				• Last Price: ${money(m, "last_price")}
 
 				Event: ${m.event_ticker}
 				Close Time: ${m.close_time}
+				Primary Rules: ${field(m, "rules_primary") ?? "Not provided"}
+				Secondary Rules: ${field(m, "rules_secondary") ?? "Not provided"}
 				${m.result ? `Result: ${m.result}` : ""}
 			`;
 		} catch (error) {
@@ -123,25 +131,31 @@ export const getMarketOrderbookTool = {
 	execute: async (params: z.infer<typeof getOrderbookParams>) => {
 		try {
 			const result = await marketsService.getMarketOrderbook(params);
-			const ob = result.orderbook;
+			const modern = field(result, "orderbook_fp");
+			const ob = (modern ?? field(result, "orderbook")) as
+				| Record<string, unknown>
+				| undefined;
 			if (!ob) {
-				return `No orderbook data for ticker '${params.ticker}'.`;
+				throw new Error(
+					"Orderbook response is missing orderbook_fp/orderbook.",
+				);
 			}
-
-			const formatSide = (
-				levels: Array<[number, number]> | undefined,
-				name: string,
-			) => {
-				if (!levels || levels.length === 0) return `${name}: No orders`;
-				return `${name}:\n${levels.map(([price, qty]) => `  ${price}¢: ${qty} contracts`).join("\n")}`;
-			};
+			const inDollars =
+				modern != null || "yes_dollars" in ob || "no_dollars" in ob;
+			if (
+				!(inDollars
+					? "yes_dollars" in ob || "no_dollars" in ob
+					: "yes" in ob || "no" in ob)
+			) {
+				throw new Error("Unrecognized orderbook response fields.");
+			}
 
 			return dedent`
 				Orderbook for ${params.ticker}:
 
-				${formatSide(ob.true as Array<[number, number]>, "YES Bids")}
+				${orderbookSide(inDollars ? ob.yes_dollars : ob.yes, "YES Bids", inDollars)}
 
-				${formatSide(ob.false as Array<[number, number]>, "NO Bids")}
+				${orderbookSide(inDollars ? ob.no_dollars : ob.no, "NO Bids", inDollars)}
 			`;
 		} catch (error) {
 			return `Error fetching orderbook: ${error instanceof Error ? error.message : String(error)}`;
@@ -186,13 +200,13 @@ export const getTradesTool = {
 					const time = t.created_time
 						? new Date(t.created_time).toLocaleString()
 						: "N/A";
-					return `• ${t.ticker}: ${t.count} @ ${t.yes_price}¢ (${time})`;
+					return `• ${t.ticker}: ${quantity(t, "count")} contracts @ Yes ${money(t, "yes_price")} (${time})`;
 				})
 				.join("\n");
 			return dedent`
 				Found ${trades.length} trades:
 
-				${summary}
+				${summary}${pagination(result)}
 			`;
 		} catch (error) {
 			return `Error fetching trades: ${error instanceof Error ? error.message : String(error)}`;
@@ -225,7 +239,7 @@ export const getSeriesTool = {
 				Title: ${s.title}
 				Category: ${s.category}
 
-				${s.settlement_sources ? `Settlement Sources: ${s.settlement_sources.join(", ")}` : ""}
+				Settlement Sources: ${s.settlement_sources?.map((source) => (typeof source === "string" ? source : `${source.name ?? "Source"}: ${source.url ?? "URL not provided"}`)).join(", ") ?? "Not provided"}
 			`;
 		} catch (error) {
 			return `Error fetching series: ${error instanceof Error ? error.message : String(error)}`;

@@ -1,5 +1,12 @@
 import dedent from "dedent";
 import { z } from "zod";
+import {
+	direction,
+	field,
+	pagination,
+	quantity,
+	sidePrice,
+} from "../lib/format.js";
 import { OrdersService } from "../services/orders-service.js";
 
 const ordersService = new OrdersService();
@@ -38,16 +45,14 @@ export const getOrdersTool = {
 			}
 			const summary = orders
 				.map((o) => {
-					const side = o.side === "yes" ? "YES" : "NO";
-					const action = o.action === "buy" ? "BUY" : "SELL";
-					const price = o.yes_price || o.no_price || 0;
-					return `• ${o.order_id?.slice(0, 8)}... ${o.ticker}: ${action} ${o.remaining_count}/${o.initial_count} ${side} @ ${price}¢ [${o.status}]`;
+					const { side, action } = direction(o);
+					return `• ${o.order_id} ${o.ticker}: ${action} ${quantity(o, "remaining_count")}/${quantity(o, "initial_count")} ${side} @ ${sidePrice(o)} [${o.status}]`;
 				})
 				.join("\n");
 			return dedent`
 				Found ${orders.length} orders:
 
-				${summary}
+				${summary}${pagination(result)}
 			`;
 		} catch (error) {
 			return `Error fetching orders: ${error instanceof Error ? error.message : String(error)}`;
@@ -71,8 +76,7 @@ export const getOrderTool = {
 			if (!o) {
 				return `Order '${params.orderId}' not found.`;
 			}
-			const side = o.side === "yes" ? "YES" : "NO";
-			const action = o.action === "buy" ? "BUY" : "SELL";
+			const { side, action } = direction(o);
 			return dedent`
 				Order: ${o.order_id}
 				Market: ${o.ticker}
@@ -80,12 +84,12 @@ export const getOrderTool = {
 				Status: ${o.status}
 
 				Quantity:
-				• Initial: ${o.initial_count} contracts
-				• Filled: ${o.fill_count} contracts
-				• Remaining: ${o.remaining_count} contracts
+				• Initial: ${quantity(o, "initial_count")} contracts
+				• Filled: ${quantity(o, "fill_count")} contracts
+				• Remaining: ${quantity(o, "remaining_count")} contracts
 
-				Price: ${o.yes_price || o.no_price}¢
-				Queue Position: ${o.queue_position || "N/A"}
+				Price: ${sidePrice(o)}
+				Queue Position: ${field(o, "queue_position") ?? "N/A"}
 
 				Created: ${o.created_time}
 				Last Updated: ${o.last_update_time}
@@ -160,16 +164,15 @@ export const createOrderTool = {
 			if (!o) {
 				return "Order created but no details returned.";
 			}
-			const side = o.side === "yes" ? "YES" : "NO";
-			const action = o.action === "buy" ? "BUY" : "SELL";
+			const { side, action } = direction(o);
 			return dedent`
 				✅ Order created successfully!
 
 				Order ID: ${o.order_id}
 				Market: ${o.ticker}
-				Type: ${action} ${o.initial_count} ${side} @ ${o.yes_price || o.no_price}¢
+				Type: ${action} ${quantity(o, "initial_count")} ${side} @ ${sidePrice(o)}
 				Status: ${o.status}
-				Filled: ${o.fill_count || 0}/${o.initial_count} contracts
+				Filled: ${quantity(o, "fill_count")}/${quantity(o, "initial_count")} contracts
 			`;
 		} catch (error) {
 			return `Error creating order: ${error instanceof Error ? error.message : String(error)}`;
@@ -195,7 +198,7 @@ export const cancelOrderTool = {
 
 				Order ID: ${o?.order_id || params.orderId}
 				Final Status: ${o?.status || "canceled"}
-				Filled before cancel: ${o?.fill_count || 0} contracts
+				Filled before cancel: ${o ? quantity(o, "fill_count") : "N/A"} contracts
 			`;
 		} catch (error) {
 			return `Error canceling order: ${error instanceof Error ? error.message : String(error)}`;
@@ -253,7 +256,7 @@ export const decreaseOrderTool = {
 				✅ Order decreased successfully!
 
 				Order ID: ${o?.order_id || params.orderId}
-				Remaining: ${o?.remaining_count || "N/A"} contracts
+				Remaining: ${o ? quantity(o, "remaining_count") : "N/A"} contracts
 				Status: ${o?.status || "updated"}
 			`;
 		} catch (error) {

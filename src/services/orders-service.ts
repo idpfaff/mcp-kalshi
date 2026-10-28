@@ -7,6 +7,7 @@ import type {
 	CreateOrderRequestTimeInForceEnum,
 	CreateOrderRequestTypeEnum,
 } from "kalshi-typescript";
+import { assertTradingEnabled } from "../lib/config.js";
 import { KalshiClient } from "./kalshi-client.js";
 
 export interface GetOrdersParams {
@@ -88,6 +89,7 @@ export class OrdersService {
 	}
 
 	async createOrder(params: CreateOrderParams) {
+		assertTradingEnabled();
 		const request: CreateOrderRequest = {
 			ticker: params.ticker,
 			side: params.side,
@@ -107,11 +109,13 @@ export class OrdersService {
 	}
 
 	async cancelOrder(orderId: string) {
+		assertTradingEnabled();
 		const response = await this.client.orders.cancelOrder(orderId);
 		return response.data;
 	}
 
 	async amendOrder(params: AmendOrderParams) {
+		assertTradingEnabled();
 		const response = await this.client.orders.amendOrder(params.orderId, {
 			ticker: params.ticker,
 			side: params.side,
@@ -126,6 +130,7 @@ export class OrdersService {
 	}
 
 	async decreaseOrder(params: DecreaseOrderParams) {
+		assertTradingEnabled();
 		const response = await this.client.orders.decreaseOrder(params.orderId, {
 			reduce_by: params.reduceBy,
 		});
@@ -133,6 +138,7 @@ export class OrdersService {
 	}
 
 	async batchCreateOrders(params: BatchCreateOrdersParams) {
+		assertTradingEnabled();
 		const orders = params.orders.map((order) => ({
 			ticker: order.ticker,
 			side: order.side,
@@ -152,6 +158,7 @@ export class OrdersService {
 	}
 
 	async batchCancelOrders(params: BatchCancelOrdersParams) {
+		assertTradingEnabled();
 		const response = await this.client.orders.batchCancelOrders({
 			ids: params.ids,
 		});

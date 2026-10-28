@@ -1,5 +1,12 @@
 import dedent from "dedent";
 import { z } from "zod";
+import {
+	direction,
+	money,
+	pagination,
+	quantity,
+	sidePrice,
+} from "../lib/format.js";
 import { PortfolioService } from "../services/portfolio-service.js";
 
 const portfolioService = new PortfolioService();
@@ -15,12 +22,9 @@ export const getBalanceTool = {
 	execute: async (_params: z.infer<typeof getBalanceParams>) => {
 		try {
 			const result = await portfolioService.getBalance();
-			const balance = (result.balance || 0) / 100;
-			const portfolioValue = (result.portfolio_value || 0) / 100;
 			return dedent`
-				Account Balance: $${balance.toFixed(2)}
-				Portfolio Value: $${portfolioValue.toFixed(2)}
-				Total: $${(balance + portfolioValue).toFixed(2)}
+				Account Balance: ${money(result, "balance")}
+				Portfolio Value: ${money(result, "portfolio_value")}
 			`;
 		} catch (error) {
 			return `Error fetching balance: ${error instanceof Error ? error.message : String(error)}`;
@@ -64,14 +68,13 @@ export const getPositionsTool = {
 			}
 			const summary = positions
 				.map((p) => {
-					const pnl = ((p.realized_pnl || 0) / 100).toFixed(2);
-					return `• ${p.ticker}: ${p.position} contracts (Realized P&L: $${pnl})`;
+					return `• ${p.ticker}: ${quantity(p, "position")} contracts (Realized P&L: ${money(p, "realized_pnl")}; Exposure: ${money(p, "market_exposure")}; Fees: ${money(p, "fees_paid")})`;
 				})
 				.join("\n");
 			return dedent`
 				Found ${positions.length} positions:
 
-				${summary}
+				${summary}${pagination(result)}
 			`;
 		} catch (error) {
 			return `Error fetching positions: ${error instanceof Error ? error.message : String(error)}`;
@@ -117,15 +120,14 @@ export const getFillsTool = {
 					const time = f.created_time
 						? new Date(f.created_time).toLocaleString()
 						: "N/A";
-					const side = f.side === "yes" ? "YES" : "NO";
-					const action = f.action === "buy" ? "BUY" : "SELL";
-					return `• ${f.ticker}: ${action} ${f.count} ${side} @ ${f.yes_price}¢ (${time})`;
+					const { side, action } = direction(f);
+					return `• ${f.ticker}: ${action} ${quantity(f, "count")} ${side} @ ${sidePrice(f)} (${time})`;
 				})
 				.join("\n");
 			return dedent`
 				Found ${fills.length} fills:
 
-				${summary}
+				${summary}${pagination(result)}
 			`;
 		} catch (error) {
 			return `Error fetching fills: ${error instanceof Error ? error.message : String(error)}`;
@@ -171,17 +173,16 @@ export const getSettlementsTool = {
 			}
 			const summary = settlements
 				.map((s) => {
-					const revenue = ((s.revenue || 0) / 100).toFixed(2);
 					const time = s.settled_time
 						? new Date(s.settled_time).toLocaleString()
 						: "N/A";
-					return `• ${s.ticker}: ${s.market_result} - Revenue: $${revenue} (${time})`;
+					return `• ${s.ticker}: ${s.market_result} - Revenue: ${money(s, "revenue")} (${time})`;
 				})
 				.join("\n");
 			return dedent`
 				Found ${settlements.length} settlements:
 
-				${summary}
+				${summary}${pagination(result)}
 			`;
 		} catch (error) {
 			return `Error fetching settlements: ${error instanceof Error ? error.message : String(error)}`;
